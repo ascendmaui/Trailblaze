@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import './styles.css';
 
 const A = '/assets/';
@@ -338,6 +339,11 @@ function App() {
     return <AppRouter path={path} session={session} />;
   }
   return <PublicRouter path={path} />;
+}
+
+const rootElement = typeof document !== 'undefined' ? document.getElementById('root') : null;
+if (rootElement) {
+  createRoot(rootElement).render(<App />);
 }
 
 export default App;
