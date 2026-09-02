@@ -272,6 +272,16 @@ textarea { min-height:125px; resize:vertical; }
 .career-form label { display:grid; gap:8px; font-weight:700; color:var(--brown-dark); }
 .career-form textarea { min-height:92px; }
 .ai-interview p { margin:0 0 4px; }
+.consent-check { display:flex !important; align-items:flex-start; gap:10px; font-size:13px; line-height:1.45; font-weight:500 !important; }
+.consent-check input { width:18px; height:18px; margin:1px 0 0; accent-color:var(--brown); }
+.voice-status { display:grid; grid-template-columns:20px 1fr; align-items:center; column-gap:10px; padding:15px; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.42); }
+.voice-status small { grid-column:2; color:var(--muted); margin-top:2px; }
+.voice-pulse { width:11px; height:11px; border-radius:50%; background:#9d8e7c; }
+.voice-status.connecting .voice-pulse { background:#d59121; animation:voice-pulse 1s infinite; }
+.voice-status.listening .voice-pulse { background:#2f7d28; animation:voice-pulse 1.2s infinite; }
+.voice-status.speaking .voice-pulse { background:var(--brown); animation:voice-pulse .65s infinite; }
+.voice-status.ready .voice-pulse { background:#447cae; }
+@keyframes voice-pulse { 50% { transform:scale(1.65); opacity:.45; } }
 .interview-result { text-align:center; }
 .score-circle { width:116px; height:116px; border-radius:50%; display:grid; place-items:center; margin:8px auto 18px; background:var(--green); color:var(--white); font-size:38px; font-weight:800; box-shadow:0 16px 32px rgba(25,45,25,.16); }
 .score-circle.small { width:78px; height:78px; font-size:27px; margin:0 0 12px; }
