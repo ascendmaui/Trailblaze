@@ -36,7 +36,7 @@ Deno.serve(async (request) => {
       .single()
     if (error) throw error
 
-    const { data: owners } = await supabase.from('profiles').select('id').in('role', ['owner', 'manager']).eq('active', true)
+    const { data: owners } = await supabase.from('profiles').select('id').in('role', ['platform_admin', 'owner', 'manager']).eq('active', true)
     if (owners?.length) {
       await supabase.from('notifications').insert(owners.map((owner) => ({ recipient_id: owner.id, category: 'hiring', title: 'New career application', body: `${fullName} applied for ${roleAppliedFor}.` })))
     }

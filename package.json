@@ -17,6 +17,7 @@
     "db:generate": "bash scripts/sites-env.sh -- drizzle-kit generate"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.9",
     "@supabase/supabase-js": "^2.99.1",
     "drizzle-orm": "0.45.2",
     "next": "16.2.6",

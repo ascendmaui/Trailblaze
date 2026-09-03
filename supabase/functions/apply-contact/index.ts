@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 const value = (input: unknown, limit: number) => typeof input === 'string' ? input.trim().slice(0, limit) : ''
+const transcriptValue = (input: unknown) => Array.isArray(input) ? input.slice(-30) : []
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -21,13 +22,40 @@ Deno.serve(async (request) => {
     const email = value(body.email, 254).toLowerCase()
     const projectType = value(body.projectType, 80)
     const message = value(body.message, 4000)
+    const source = value(body.source, 80) || 'contact_form'
+    const appointmentWindow = value(body.appointmentWindow, 160)
+    const callRoute = value(body.callRoute, 160)
+    const transcript = transcriptValue(body.transcript)
     if (!fullName || !phone || !email.includes('@') || !message) {
       return new Response(JSON.stringify({ error: 'Please complete every required field.' }), { status: 400, headers: corsHeaders })
     }
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-    const { error } = await supabase.from('contact_requests').insert({ full_name: fullName, phone, email, project_type: projectType || null, message })
+    const { data: lead, error } = await supabase.from('contact_requests').insert({
+      full_name: fullName,
+      phone,
+      email,
+      project_type: projectType || null,
+      message,
+      source,
+      status: source === 'trailblaze_ai' ? 'appointment_requested' : 'new',
+      appointment_window: appointmentWindow || null,
+      call_route: callRoute || null,
+      transcript,
+    }).select('id').single()
     if (error) throw error
+
+    const { data: owners } = await supabase.from('profiles').select('id').in('role', ['platform_admin', 'owner', 'manager']).eq('active', true)
+    if (owners?.length) {
+      await supabase.from('notifications').insert(owners.map((owner) => ({
+        recipient_id: owner.id,
+        category: 'system',
+        title: source === 'trailblaze_ai' ? 'Trailblaze AI lead captured' : 'New website contact',
+        body: `${fullName} requested help with ${projectType || 'a project'}${appointmentWindow ? ` and prefers ${appointmentWindow}` : ''}.`,
+        related_table: 'contact_requests',
+        related_id: lead?.id || null,
+      })))
+    }
     return new Response(JSON.stringify({ ok: true }), { status: 201, headers: corsHeaders })
   } catch (error) {
     console.error('apply-contact failed', error)

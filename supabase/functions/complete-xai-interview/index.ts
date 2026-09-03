@@ -97,7 +97,7 @@ Deno.serve(async (request) => {
     const { error: updateError } = await supabase.from('career_applications').update({ status: 'interview_complete' }).eq('id', application.id)
     if (updateError) throw updateError
 
-    const { data: owners } = await supabase.from('profiles').select('id').in('role', ['owner', 'manager']).eq('active', true)
+    const { data: owners } = await supabase.from('profiles').select('id').in('role', ['platform_admin', 'owner', 'manager']).eq('active', true)
     if (owners?.length) await supabase.from('notifications').insert(owners.map((owner) => ({ recipient_id: owner.id, category: 'hiring', title: 'Voice interview complete', body: `${application.full_name}'s ${application.role_applied_for} interview is ready for review.` })))
 
     return new Response(JSON.stringify({ ok: true, assessment: { score, verdict: trim(assessment.verdict, 80), summary: trim(assessment.summary, 900), strengths, risks } }), { headers: corsHeaders })
